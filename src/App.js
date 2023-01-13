@@ -1,25 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import ProductsPage from './pages/ProductsPage';
+import Navigation from './components/Navigation';
+import Cart from './pages/Cart';
+import SingleProducts from './pages/SingleProducts';
+import { CartContext } from './CartContext';
+import { useEffect, useState } from 'react';
+import { getCart, storeCart } from './helpers';
 
-function App() {
+const App = () => {
+  const [cart, setCart] = useState({});
+
+  // Fetch cart from local storage
+
+  useEffect(() => {
+    getCart().then(cart => {
+      setCart(JSON.parse(cart));
+    });
+  }, []);
+
+  useEffect(() => {
+    storeCart(JSON.stringify(cart));
+  }, [cart]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <CartContext.Provider value={{ cart, setCart }}>
+        <Navigation />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/products" exact element={<ProductsPage />} />
+          <Route path="/products/:_id" element={<SingleProducts />} />
+        </Routes>
+      </CartContext.Provider>
+    </BrowserRouter>
   );
-}
+};
 
 export default App;
